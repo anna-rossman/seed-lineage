@@ -14,16 +14,35 @@ class Seed < ApplicationRecord
            dependent: :restrict_with_exception
 
   # Validations
-  validates :name, presence: true
+  validates :name,
+          presence: true,
+          uniqueness: { scope: [ :parent_one_id, :parent_two_id ],
+                        message: "A seed with this name and parents already exists" },
+          allow_nil: false
   validate :must_have_two_parents_unless_root
   validate :parents_must_be_different
+
+  before_validation :sort_parents
 
   # Returns all children regardless of parent role
   def children
     Seed.where("parent_one_id = ? OR parent_two_id = ?", id, id)
   end
 
+  # Generation-zero seeds
+  def root_seed?
+    parent_one.nil? && parent_two.nil?
+  end
+
   private
+
+  # Ensure parent_one_id < parent_two_id
+  def sort_parents
+    return if parent_one_id.nil? || parent_two_id.nil?
+    if parent_one_id > parent_two_id
+      self.parent_one_id, self.parent_two_id = parent_two_id, parent_one_id
+    end
+  end
 
   # Non-root seeds must have two parents
   def must_have_two_parents_unless_root
@@ -41,10 +60,5 @@ class Seed < ApplicationRecord
     if parent_one_id == parent_two_id
       errors.add(:base, "Parents must be different")
     end
-  end
-
-  # Generation-zero seeds
-  def root_seed?
-    parent_one.nil? && parent_two.nil?
   end
 end
