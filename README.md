@@ -11,7 +11,10 @@ The data model clearly and correctly represent these relationships.
 To run the model for the first time:
 ```
 rails db:migrate
+
+// to populate database with initial data
 rails db:seed
+
 rails console
 ```
 
@@ -19,7 +22,6 @@ To reset the database and re-run it:
 ```
 rails db:rollback
 rails db:migrate
-rails db:seed
 rails console
 ```
 
