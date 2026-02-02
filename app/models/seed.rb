@@ -19,7 +19,7 @@ class Seed < ApplicationRecord
           uniqueness: { scope: [ :parent_one_id, :parent_two_id ],
                         message: "A seed with this name and parents already exists" },
           allow_nil: false
-  validate :must_have_two_parents_unless_root
+  validate :must_have_two_parents_unless_allowed_root
   validate :parents_must_be_different
 
   before_validation :sort_parents
@@ -45,8 +45,20 @@ class Seed < ApplicationRecord
   end
 
   # Non-root seeds must have two parents
-  def must_have_two_parents_unless_root
-    return if root_seed?
+  def must_have_two_parents_unless_allowed_root
+    if parent_one.nil? && parent_two.nil?
+      existing_root_count = Seed
+        .where(parent_one_id: nil, parent_two_id: nil)
+        .where.not(id: id)   # exclude current record
+        .count
+
+      if existing_root_count >= 2
+        errors.add(:base, "Only two root seeds are allowed")
+      end
+
+      return
+    end
+
     if parent_one.nil? || parent_two.nil?
       errors.add(:base, "Seed must have exactly two parents")
     end
