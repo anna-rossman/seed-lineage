@@ -1,24 +1,29 @@
-# README
+# Seed Lineage Coding Exercise
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Rails 8 application that models and tracks seed genetics across successive generations.
 
-Things you may want to cover:
+- Every Seed must have exactly two parent Seeds.
+- A parent Seed may have many child Seeds.
+- No two child Seeds may share the same pair of parents (the parent pair must be unique).
 
-* Ruby version
+The data model clearly and correctly represent these relationships.
 
-* System dependencies
+To run the model for the first time:
+```
+rails db:migrate
+rails db:seed
+rails console
+```
 
-* Configuration
+To reset the database and re-run it:
+```
+rails db:rollback
+rails db:migrate
+rails db:seed
+rails console
+```
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Example of how to add a new seed in the console:
+```
+Seed.create!(name: "NewSeed", parent_one_id: 1, parent_two_id: 2)
+```
